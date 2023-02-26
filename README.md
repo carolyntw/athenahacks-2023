@@ -3,7 +3,9 @@ Human-induced climate change is primarily caused by our carbon footprint, which 
 
 ## What it does
 • Visualize the CO2 Emission Trends Worldwide and for Specific Countries
+
 • Visualize the Global Average Emissions from Different Sources
+
 • Calculate your personal Carbon Footprint and visualize the results
 
 ## How we built it
