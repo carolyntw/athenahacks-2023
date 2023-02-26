@@ -1,4 +1,5 @@
 import pandas as pd
+import dash_bootstrap_components as dbc
 from dash import Dash
 import dash_html_components as html
 import dash_core_components as dcc
@@ -7,12 +8,17 @@ import plotly.express as px
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 
-app = Dash(__name__)
-# Clear the layout and do not display exception till callback gets executed
+# Header image
+image_path = 'assets/GreenTrace_Logo_v003.png'
+
+app = Dash(__name__, external_stylesheets=[dbc.themes.MINTY],
+    meta_tags=[{"name": "viewport", "content": "width=device-width, initial-scale=1"},])
+
+# Do not display exception till callback gets executed
 app.config.suppress_callback_exceptions = True
 
 # Read data and clean it
-gh_data = pd.read_csv('historical_emissions.csv')
+gh_data = pd.read_csv('assets/historical_emissions.csv')
 gh_data.drop(['Data source', 'Sector', 'Gas', 'Unit'], axis=1, inplace=True)
 for x in range(1990, 1998):
     gh_data.drop([f'{x}'], axis=1, inplace=True)
@@ -33,7 +39,7 @@ world_fig = px.line(df, x='Year', y='World',
 world_fig.update_layout(title_x=0.5, title_y=0.85)
 
 # Read world avg data
-world_data = pd.read_csv('world_historical_emissions.csv', usecols=[
+world_data = pd.read_csv('assets/world_historical_emissions.csv', usecols=[
                          'Sector', '2018,avg', '2017,avg', '2016,avg', '2015,avg', '2014,avg', '2013,avg', '2012,avg', '2011,avg', '2010,avg', '2009,avg', '2008,avg'])
 world_data = world_data.rename(columns={
     '2018,avg': '2018',
@@ -86,10 +92,9 @@ fig_world.update_layout(
     )
 )
 
-app.layout = html.Div(children=[  
-    # Add title to the dashboard
-    html.H1('GreenTrace',
-            style={'textAlign': 'center', 'color': '#503D36', 'font-size': 24}),
+app.layout = html.Div(children=[
+    # Add header image
+    html.Img(src=image_path, alt='GreenTrace', style={'width': '100%'}),
 
     # Add a graph for World CO2 emission data
     dcc.Graph(figure=world_fig),
@@ -99,7 +104,7 @@ app.layout = html.Div(children=[
         # Add an division
         html.Div([
             # Add dropdown
-            html.Div([html.H2('Select Country from Dropdown to See CO2 Emission:', style={'margin-right': '2em'})]),
+            html.Div([html.H2('Select country from dropdown to see CO2 emission:', style={'margin-right': '2em'})]),
             
             dcc.Dropdown(id='input-country',
                         options=[{'label': i, 'value': i} for i in country_list],
@@ -110,7 +115,7 @@ app.layout = html.Div(children=[
             html.Br(),
 
             # Add slider
-            html.Div([html.Label("Toggle year range:"),
+            html.Div([html.Label("After country selection, please toggle year range:"),
                       dcc.RangeSlider(id='year-slider',
                                       min=1998, max=2018, step=1,
                                       marks={1998: '1998', 2000: '2000', 2002: '2002', 2004: '2004', 2006: '2006', 2008: '2008',
@@ -120,6 +125,9 @@ app.layout = html.Div(children=[
 
     # Add line graph for CO2 emission for selected country and years
     html.Div([html.Div([], id='line_plot')]),
+
+    html.Br(),
+    html.Br(),
 
     html.H2(children='World Average Emissions'),
     html.Div([
