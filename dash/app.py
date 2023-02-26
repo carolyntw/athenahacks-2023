@@ -137,20 +137,32 @@ app.layout = html.Div(children=[
         )
     ]),
 
-    html.H3(children='Your Emissions'),
-    html.Div([
-        html.Label('Value 1:'),
-        dcc.Input(id='input1', type='number', value=50),
-        html.Label('Value 2:'),
-        dcc.Input(id='input2', type='number', value=50),
-        html.Label('Value 3:'),
-        dcc.Input(id='input3', type='number', value=50),
-        html.Label('Value 4:'),
-        dcc.Input(id='input4', type='number', value=50),
-        html.Br(),
-        html.Br(),
-        html.Div(id='output-graph')
-    ])
+    html.H3(children='Calculate Your Carbon Footprint'),
+    html.Div([html.Div([html.Label('Monthly Electric Bill:', style={'font-weight': 'bold', 'font-size': '16px'}),        dcc.Input(id='input1', type='number', value=1, style={'width': '100px', 'margin-left': '10px'})], style={'text-align': 'center'}),
+
+              html.Div([html.Label('Monthly Gas Bill:', style={'font-weight': 'bold', 'font-size': '16px'}),        dcc.Input(
+                  id='input2', type='number', value=1, style={'width': '100px', 'margin-left': '10px'})], style={'text-align': 'center'}),
+
+              html.Div([html.Label('Monthly Oil Bill:', style={'font-weight': 'bold', 'font-size': '16px'}),        dcc.Input(
+                  id='input3', type='number', value=1, style={'width': '100px', 'margin-left': '10px'})], style={'text-align': 'center'}),
+
+              html.Div([html.Label('Total Yearly Mileage on Your Car:', style={'font-weight': 'bold', 'font-size': '16px'}),        dcc.Input(
+                  id='input4', type='number', value=1, style={'width': '100px', 'margin-left': '10px'})], style={'text-align': 'center'}),
+
+              html.Div([html.Label('Number of Flights You have taken in the past year (4 hours or less):', style={'font-weight': 'bold', 'font-size': '16px'}),        dcc.Input(
+                  id='input5', type='number', value=1, style={'width': '100px', 'margin-left': '10px'})], style={'text-align': 'center'}),
+
+              html.Div([html.Label('Number of Flights You have taken in the past year (4 hours or more):', style={'font-weight': 'bold', 'font-size': '16px'}),        dcc.Input(
+                  id='input6', type='number', value=1, style={'width': '100px', 'margin-left': '10px'})], style={'text-align': 'center'}),
+
+              html.Div([html.Label('Do You Recycle Aluminum and Tin (Yes: "0", No: "166"):', style={'font-weight': 'bold', 'font-size': '16px'}),        dcc.Input(
+                  id='input7', type='number', value=1, style={'width': '100px', 'margin-left': '10px'})], style={'text-align': 'center'}),
+
+              html.Div([html.Label('Do You Recycle paper (Yes: "0", No: "184"):', style={'font-weight': 'bold', 'font-size': '16px'}),        dcc.Input(
+                  id='input8', type='number', value=1, style={'width': '100px', 'margin-left': '10px'})], style={'text-align': 'center'}),
+
+              ], style={'display': 'grid', 'grid-template-columns': 'repeat(4, 1fr)', 'grid-row-gap': '20px'}),
+              html.Div(id='output-graph')
 
 ])
 
@@ -176,21 +188,25 @@ def get_line_graph(country, year):
     [Input('input1', 'value'),
      Input('input2', 'value'),
      Input('input3', 'value'),
-     Input('input4', 'value')])
+     Input('input4', 'value'),
+     Input('input5', 'value'),
+     Input('input6', 'value'),
+     Input('input7', 'value'),
+     Input('input8', 'value')])
 
-def update_graph(value1, value2, value3, value4):
+def update_graph(value1, value2, value3, value4, value5, value6, value7, value8):
     # Filter the data based on the user input
     fig_personal = go.Figure()
     fig_personal.add_trace(
-        go.Pie(labels=['Value 1', 'Value 2', 'Value 3', 'Value 4'],
-               values=[value1, value2, value3, value4]))
+        go.Pie(labels=['Electric', 'Gas', 'Oil', 'Miles Driven', 'Short Flight', 'Long Flight', 'Recycle(Aluminum and Tin)', 'Recycle(Paper)'],
+               values=[value1*105, value2*105, value3*113, value4*0.79, value5*1100, value6*4400, value7, value8]))
     fig_personal.update_layout(title='Doughnut Plot')
-    fig_personal.update_traces(hole=.4, hoverinfo="label+percent+name")
+    fig_personal.update_traces(hole=.6, hoverinfo="label+percent")
     fig_personal.update_layout(
-        title_text="Your Emissions Persentage ",
+        title_text="Personal Emissions Percentage ",
         # Add annotations in the center of the donut pies.
         annotations=[
-            dict(text='Yours', x=0.5, y=0.5, font_size=16, showarrow=False)])
+            dict(text='Your Carbon Footprint', x=0.5, y=0.5, font_size=12, showarrow=False)])
 
     # Return the graph as a dcc.Graph component
     return dcc.Graph(id='doughnut graph', figure=fig_personal)
