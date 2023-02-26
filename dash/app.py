@@ -96,15 +96,31 @@ app.layout = html.Div(children=[
     # Add header image
     html.Img(src=image_path, alt='GreenTrace', style={'width': '100%'}),
 
-    # Add a graph for World CO2 emission data
-    dcc.Graph(figure=world_fig),
+    # Add instructions
+    html.Div([html.H1('Welcome to GreenTrace!', style={'text-align':'center'}),
+            html.P('We have 3 goals:'),
+            html.P(['1) Display CO2 emission trends from 1998-2018 for world and specific countries -- ', 
+                   html.A("Dataset from Kaggle", href='https://www.kaggle.com/datasets/ankanhore545/carbon-dioxide-emissions-of-the-world', target="_blank")]),
+            html.P(['2) Display global average emission from difference sources (ie. Energy, Electricity, etc) -- ', 
+                   html.A("Dataset from Climate Watch", href='https://www.climatewatchdata.org/data-explorer/historical-emissions?historical-emissions-data-sources=climate-watch&historical-emissions-gases=all-ghg&historical-emissions-regions=All%20Selected&historical-emissions-sectors=total-including-lucf%2Ctotal-including-lucf&page=1', target="_blank")]),
+            html.P(['3) Calculate individual carbon footprint based on your inputs -- ', 
+                   html.A("Carbon Footprint Calculations", href='https://justenergy.com/blog/how-to-calculate-your-carbon-footprint/', target="_blank")]),
+            ]
+    ),
+    
+    html.Br(),
+
+    html.Div([html.H2('CO2 Emission Trends Worldwide and for Specific Countries', style={'margin-right': '2em'}),
+            # Add a graph for World CO2 emission data
+            dcc.Graph(figure=world_fig),
+            ]),
 
     # Dropdown creation, create an outer division
     html.Div([
         # Add an division
         html.Div([
             # Add dropdown
-            html.Div([html.H2('Select country from dropdown to see CO2 emission:', style={'margin-right': '2em'})]),
+            html.Div([html.H5('Select country from dropdown to see CO2 emission:', style={'margin-right': '2em'})]),
             
             dcc.Dropdown(id='input-country',
                         options=[{'label': i, 'value': i} for i in country_list],
@@ -129,7 +145,7 @@ app.layout = html.Div(children=[
     html.Br(),
     html.Br(),
 
-    html.H2(children='World Average Emissions'),
+    html.H2(children='Global Average Emissions from Different Sources'),
     html.Div([
         dcc.Graph(
             id='avg-emissions-graph',
@@ -137,31 +153,41 @@ app.layout = html.Div(children=[
         )
     ]),
 
-    html.H3(children='Calculate Your Carbon Footprint'),
-    html.Div([html.Div([html.Label('Monthly Electric Bill:', style={'font-weight': 'bold', 'font-size': '16px'}),        dcc.Input(id='input1', type='number', value=1, style={'width': '100px', 'margin-left': '10px'})], style={'text-align': 'center'}),
+    html.H2(children='Calculate Your Carbon Footprint'),
+    html.Div([html.Div([html.Label('Monthly Electric Bill:', style={'font-weight': 'bold', 'font-size': '16px'}),
+                        dcc.Input(id='input1', type='number', value=1, style={'width': '100px', 'margin-left': '10px'})],
+                        style={'text-align': 'center'}),
 
-              html.Div([html.Label('Monthly Gas Bill:', style={'font-weight': 'bold', 'font-size': '16px'}),        dcc.Input(
-                  id='input2', type='number', value=1, style={'width': '100px', 'margin-left': '10px'})], style={'text-align': 'center'}),
+              html.Div([html.Label('Monthly Gas Bill:', style={'font-weight': 'bold', 'font-size': '16px'}),
+                        dcc.Input(id='input2', type='number', value=1, style={'width': '100px', 'margin-left': '10px'})],
+                        style={'text-align': 'center'}),
 
-              html.Div([html.Label('Monthly Oil Bill:', style={'font-weight': 'bold', 'font-size': '16px'}),        dcc.Input(
-                  id='input3', type='number', value=1, style={'width': '100px', 'margin-left': '10px'})], style={'text-align': 'center'}),
+              html.Div([html.Label('Monthly Oil Bill:', style={'font-weight': 'bold', 'font-size': '16px'}),
+                        dcc.Input(id='input3', type='number', value=1, style={'width': '100px', 'margin-left': '10px'})],
+                        style={'text-align': 'center'}),
 
-              html.Div([html.Label('Total Yearly Mileage on Your Car:', style={'font-weight': 'bold', 'font-size': '16px'}),        dcc.Input(
-                  id='input4', type='number', value=1, style={'width': '100px', 'margin-left': '10px'})], style={'text-align': 'center'}),
+              html.Div([html.Label('Total Yearly Mileage on Your Car:', style={'font-weight': 'bold', 'font-size': '16px'}),
+                        dcc.Input(id='input4', type='number', value=1, style={'width': '100px', 'margin-left': '10px'})],
+                        style={'text-align': 'center'}),
 
-              html.Div([html.Label('Number of Flights You have taken in the past year (4 hours or less):', style={'font-weight': 'bold', 'font-size': '16px'}),        dcc.Input(
-                  id='input5', type='number', value=1, style={'width': '100px', 'margin-left': '10px'})], style={'text-align': 'center'}),
+              html.Div([html.Label('Number of Flights You have taken in the past year (4 hours or less):', style={'font-weight': 'bold', 'font-size': '16px'}),
+                        dcc.Input(id='input5', type='number', value=1, style={'width': '100px', 'margin-left': '10px'})], 
+                        style={'text-align': 'center'}),
 
-              html.Div([html.Label('Number of Flights You have taken in the past year (4 hours or more):', style={'font-weight': 'bold', 'font-size': '16px'}),        dcc.Input(
-                  id='input6', type='number', value=1, style={'width': '100px', 'margin-left': '10px'})], style={'text-align': 'center'}),
+              html.Div([html.Label('Number of Flights You have taken in the past year (4 hours or more):', style={'font-weight': 'bold', 'font-size': '16px'}),
+                        dcc.Input(id='input6', type='number', value=1, style={'width': '100px', 'margin-left': '10px'})], 
+                        style={'text-align': 'center'}),
 
-              html.Div([html.Label('Do You Recycle Aluminum and Tin (Yes: "0", No: "166"):', style={'font-weight': 'bold', 'font-size': '16px'}),        dcc.Input(
-                  id='input7', type='number', value=1, style={'width': '100px', 'margin-left': '10px'})], style={'text-align': 'center'}),
+              html.Div([html.Label('Do You Recycle Aluminum and Tin (Yes: "0", No: "166"):', style={'font-weight': 'bold', 'font-size': '16px'}),
+                        dcc.Input(id='input7', type='number', value=1, style={'width': '100px', 'margin-left': '10px'})],
+                        style={'text-align': 'center'}),
 
-              html.Div([html.Label('Do You Recycle paper (Yes: "0", No: "184"):', style={'font-weight': 'bold', 'font-size': '16px'}),        dcc.Input(
-                  id='input8', type='number', value=1, style={'width': '100px', 'margin-left': '10px'})], style={'text-align': 'center'}),
+              html.Div([html.Label('Do You Recycle paper (Yes: "0", No: "184"):', style={'font-weight': 'bold', 'font-size': '16px'}),
+                        dcc.Input(id='input8', type='number', value=1, style={'width': '100px', 'margin-left': '10px'})],
+                        style={'text-align': 'center'}),
 
-              ], style={'display': 'grid', 'grid-template-columns': 'repeat(4, 1fr)', 'grid-row-gap': '20px'}),
+              ], 
+              style={'display': 'grid', 'grid-template-columns': 'repeat(4, 1fr)', 'grid-row-gap': '20px'}),
               html.Div(id='output-graph'),
               html.Div(id='output-div', style={'textAlign': 'center','margin-top': '5px'})            
 
