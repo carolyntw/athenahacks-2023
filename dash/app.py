@@ -9,7 +9,7 @@ import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 
 # Header image
-image_path = 'assets/GreenTrace_Logo_v003.png'
+image_path = 'assets/GreenTrace_Logo_v004.png'
 
 app = Dash(__name__, external_stylesheets=[dbc.themes.MINTY],
     meta_tags=[{"name": "viewport", "content": "width=device-width, initial-scale=1"},])
