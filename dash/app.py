@@ -1,5 +1,4 @@
 import pandas as pd
-import os
 from dash import Dash
 import dash_html_components as html
 import dash_core_components as dcc
@@ -87,11 +86,12 @@ fig_world.update_layout(
     )
 )
 
-app.layout = html.Div(children=[  # Add title to the dashboard
-    html.H1('Carbon Footprint Tracker',
+app.layout = html.Div(children=[  
+    # Add title to the dashboard
+    html.H1('GreenTrace',
             style={'textAlign': 'center', 'color': '#503D36', 'font-size': 24}),
 
-    # Add a division for World CO2 emission data
+    # Add a graph for World CO2 emission data
     dcc.Graph(figure=world_fig),
 
     # Dropdown creation, create an outer division
@@ -99,24 +99,28 @@ app.layout = html.Div(children=[  # Add title to the dashboard
         # Add an division
         html.Div([
             # Add dropdown
-            html.Div(
-                [html.H2('Country:', style={'margin-right': '2em'}),]),
+            html.Div([html.H2('Select Country from Dropdown to See CO2 Emission:', style={'margin-right': '2em'})]),
+            
             dcc.Dropdown(id='input-country',
-                         options=[
-                             {'label': i, 'value': i} for i in country_list],
-                         multi=True,
-                         placeholder="Select a country here",
-                         searchable=True),
+                        options=[{'label': i, 'value': i} for i in country_list],
+                        multi=True,
+                        placeholder="Select a country here",
+                        searchable=True),
+
+            html.Br(),
 
             # Add slider
-            html.Div([html.Label("Choose Year:"),
+            html.Div([html.Label("Toggle year range:"),
                       dcc.RangeSlider(id='year-slider',
                                       min=1998, max=2018, step=1,
                                       marks={1998: '1998', 2000: '2000', 2002: '2002', 2004: '2004', 2006: '2006', 2008: '2008',
                                              2010: '2010', 2012: '2012', 2014: '2014', 2016: '2016', 2018: '2018'},
-                                      value=[1998, 2018]),
-                      dcc.Graph(id='country_plot')]),
+                                      value=[1998, 2018])]),
         ])]),
+
+    # Add line graph for CO2 emission for selected country and years
+    html.Div([html.Div([], id='line_plot')]),
+
     html.H2(children='World Average Emissions'),
     html.Div([
         dcc.Graph(
@@ -124,6 +128,7 @@ app.layout = html.Div(children=[  # Add title to the dashboard
             figure=fig_world
         )
     ]),
+
     html.H3(children='Your Emissions'),
     html.Div([
         html.Label('Value 1:'),
@@ -141,22 +146,22 @@ app.layout = html.Div(children=[  # Add title to the dashboard
 
 ])
 
+@app.callback(Output(component_id='line_plot', component_property='children'),
+            Input(component_id='input-country', component_property='value'),
+            Input(component_id='year-slider', component_property='value'),
+            prevent_initial_call = True)
 
-@app.callback(Output(component_id='country_plot', component_property='figure'),
-              Input(component_id='input-country', component_property='value'),
-              Input(component_id='year-slider', component_property='value'),
-              prevent_initial_call=True)
-def get_line(country, year):
-    year_df = df[df['Year'].between(
-        year[0], year[1], inclusive='both')]['Year']
-    country_df = df[df['Year'].between(
-        year[0], year[1], inclusive='both')][country]
+def get_line_graph(country, year):
+    year_df = df[df['Year'].between(year[0], year[1], inclusive='both')]['Year']
+    country_df = df[df['Year'].between(year[0], year[1], inclusive='both')][country]
     filtered_df = pd.concat([year_df, country_df], axis=1)
-    fig = px.line(filtered_df, x='Year', y=country, labels={"value": "CO2 Emission (in MtCO₂e)", "variable": "Country"},
+    
+    # Graph line graph
+    line_fig = px.line(filtered_df, x='Year', y=country, labels={"value": "CO2 Emission (in MtCO₂e)", "variable": "Country"},
                   title=f'CO2 Emission (in MtCO₂e) between {year[0]} and {year[1]}')
-    fig.update_layout(title_x=0.5, title_y=0.85)
-    return fig
+    line_fig.update_layout(title_x=0.5, title_y=0.85)
 
+    return dcc.Graph(figure=line_fig)
 
 @app.callback(
     Output('output-graph', 'children'),
@@ -164,6 +169,7 @@ def get_line(country, year):
      Input('input2', 'value'),
      Input('input3', 'value'),
      Input('input4', 'value')])
+
 def update_graph(value1, value2, value3, value4):
     # Filter the data based on the user input
     fig_personal = go.Figure()
