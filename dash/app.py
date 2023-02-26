@@ -3,11 +3,10 @@
 
 import pandas as pd
 import os
-import dash
 from dash import Dash
 import dash_html_components as html
 import dash_core_components as dcc
-from dash.dependencies import Input, Output, State
+from dash.dependencies import Input, Output
 import plotly.express as px
 
 
@@ -25,23 +24,23 @@ df.reset_index(inplace=True)
 df.rename(columns={'index': 'Year'}, inplace=True)
 df.sort_values(by=['Year'], inplace=True)
 df.reset_index(drop=True, inplace=True)
+df['Year'] = df['Year'].astype(int)
     
 year_list = [i for i in range(1998, 2018+1, 1)]
-country_list = df.columns[1:]
+country_list = df.columns[2:]
 
-fig = px.line(df, x='Year', y='World', 
+world_fig = px.line(df, x='Year', y='World', 
               labels={"Year": "Year (1998-2018)", "World": "World CO2 Emission (in MtCO₂e)"}, 
               title='World CO2 Emission from 1998-2018')
-fig.update_layout(title_x=0.5, title_y=0.85)
+world_fig.update_layout(title_x=0.5, title_y=0.85)
 
 # Application layout
-app.layout = html.Div(children=[ 
-                                # Add title to the dashboard
+app.layout = html.Div(children=[ # Add title to the dashboard
                                 html.H1('Carbon Footprint Tracker',
                                 style={'textAlign': 'center', 'color': '#503D36', 'font-size': 24}),
                                 
                                 # Add a division for World CO2 emission data
-                                dcc.Graph(figure=fig),
+                                dcc.Graph(figure=world_fig),
                                 
                                 # Dropdown creation, create an outer division 
                                 html.Div([
@@ -49,39 +48,37 @@ app.layout = html.Div(children=[
                                     html.Div([
                                         # Create an division for adding dropdown helper text for report type
                                         html.Div(
-                                            [
-                                            html.H2('Country:', style={'margin-right': '2em'}),
-                                            ]
-                                        ),
-                                        # Add a dropdown for country selection
-                                        dcc.Dropdown(id='input-type', 
-                                            options=[{'label': i, 'value': i} for i in country_list],
-                                            placeholder='Select a country',
-                                            style={'width': '80%', 'padding': '3px', 'font-size': '18px', 'text-align-last': 'center'}
-                                        )
-                                    # Place them next to each other using the division style
-                                    ], style={'display':'flex'}),
-                                    
-                                   # Add next division 
-                                   html.Div([
-                                       # Create an division for adding dropdown helper text for choosing year
-                                        html.Div(
-                                            [
-                                            html.H2('Choose Year:', style={'margin-right': '2em'})
-                                            ]
-                                        ),
-                                        dcc.Dropdown(id='input-year', 
-                                                     # Update dropdown values using list comphrehension
-                                                     options=[{'label': i, 'value': i} for i in year_list],
-                                                     placeholder="Select a year",
-                                                     style={'width':'80%', 'padding':'3px', 'font-size': '18px', 'text-align-last' : 'center'}),
-                                            # Place them next to each other using the division style
-                                            ], style={'display': 'flex'}),  
-                                          ]),
-                                # more graphs to be added with callbacks functions...
-                                
-                                ])
+                                            [html.H2('Country:', style={'margin-right': '2em'}),]),
+                                        dcc.Dropdown(id='input-country',
+                                                       options=[{'label': i, 'value': i} for i in country_list],
+                                                       multi=True,
+                                                       placeholder="Select a Launch Site here",
+                                                       searchable=True),
 
+                                        html.Div([html.Label("Choose Year:"),
+                                            dcc.RangeSlider(id='year-slider',
+                                                        min=1998, max=2018, step=1,
+                                                        # May be able to use comprehension AT LATER TIME
+                                                        marks={1998: '1998', 2000: '2000', 2002: '2002', 2004: '2004', 2006: '2006', 2008: '2008', 
+                                                                 2010: '2010', 2012: '2012', 2014: '2014', 2016: '2016', 2018: '2018'},
+                                                        value=[1998, 2018]),
+                                            dcc.Graph(id='plot1')]),
+                                    ])])])
+
+@app.callback(Output(component_id='plot1', component_property='figure'),
+            Input(component_id='input-country', component_property='value'),
+            Input(component_id='year-slider', component_property='value'),
+            prevent_initial_call = True)
+
+def get_line(country, year):
+    year_df = df[df['Year'].between(year[0], year[1], inclusive='both')]['Year']
+    country_df = df[df['Year'].between(year[0], year[1], inclusive='both')][country]
+    filtered_df = pd.concat([year_df, country_df], axis=1)
+    fig = px.line(filtered_df, x='Year', y=country, labels={"value": "CO2 Emission (in MtCO₂e)", "variable": "Country"},
+                  title=f'CO2 Emission (in MtCO₂e) between {year[0]} and {year[1]}')
+    fig.update_layout(title_x=0.5, title_y=0.85)
+    return fig
+        
 
 if __name__ == '__main__':
     app.run_server(debug=True)
