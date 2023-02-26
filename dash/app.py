@@ -46,26 +46,26 @@ app.layout = html.Div(children=[ # Add title to the dashboard
                                 html.Div([
                                     # Add an division
                                     html.Div([
-                                        # Create an division for adding dropdown helper text for report type
+                                        # Add dropdown
                                         html.Div(
                                             [html.H2('Country:', style={'margin-right': '2em'}),]),
                                         dcc.Dropdown(id='input-country',
                                                        options=[{'label': i, 'value': i} for i in country_list],
                                                        multi=True,
-                                                       placeholder="Select a Launch Site here",
+                                                       placeholder="Select a country here",
                                                        searchable=True),
 
+                                        # Add slider
                                         html.Div([html.Label("Choose Year:"),
                                             dcc.RangeSlider(id='year-slider',
                                                         min=1998, max=2018, step=1,
-                                                        # May be able to use comprehension AT LATER TIME
                                                         marks={1998: '1998', 2000: '2000', 2002: '2002', 2004: '2004', 2006: '2006', 2008: '2008', 
                                                                  2010: '2010', 2012: '2012', 2014: '2014', 2016: '2016', 2018: '2018'},
                                                         value=[1998, 2018]),
-                                            dcc.Graph(id='plot1')]),
+                                            dcc.Graph(id='country_plot')]),
                                     ])])])
 
-@app.callback(Output(component_id='plot1', component_property='figure'),
+@app.callback(Output(component_id='country_plot', component_property='figure'),
             Input(component_id='input-country', component_property='value'),
             Input(component_id='year-slider', component_property='value'),
             prevent_initial_call = True)
