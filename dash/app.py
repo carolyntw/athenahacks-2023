@@ -162,7 +162,8 @@ app.layout = html.Div(children=[
                   id='input8', type='number', value=1, style={'width': '100px', 'margin-left': '10px'})], style={'text-align': 'center'}),
 
               ], style={'display': 'grid', 'grid-template-columns': 'repeat(4, 1fr)', 'grid-row-gap': '20px'}),
-              html.Div(id='output-graph')
+              html.Div(id='output-graph'),
+              html.Div(id='output-div', style={'textAlign': 'center','margin-top': '5px'})            
 
 ])
 
@@ -203,7 +204,7 @@ def update_graph(value1, value2, value3, value4, value5, value6, value7, value8)
     fig_personal.update_layout(title='Doughnut Plot')
     fig_personal.update_traces(hole=.6, hoverinfo="label+percent")
     fig_personal.update_layout(
-        title_text="Personal Emissions Percentage ",
+        title_text="Personal Carbon Footprint Percentage ",
         # Add annotations in the center of the donut pies.
         annotations=[
             dict(text='Your Carbon Footprint', x=0.5, y=0.5, font_size=12, showarrow=False)])
@@ -211,6 +212,24 @@ def update_graph(value1, value2, value3, value4, value5, value6, value7, value8)
     # Return the graph as a dcc.Graph component
     return dcc.Graph(id='doughnut graph', figure=fig_personal)
 
+@app.callback(
+    Output('output-div', 'children'),
+    [Input('input1', 'value'),
+     Input('input2', 'value'),
+     Input('input3', 'value'),
+     Input('input4', 'value'),
+     Input('input5', 'value'),
+     Input('input6', 'value'),
+     Input('input7', 'value'),
+     Input('input8', 'value')])
+def update_output(input1, input2, input3, input4, input5, input6, input7, input8):
+    sum_val = input1*105 + input2*105 + input3*113 + input4*0.79 + input5*1100 + input6*4400 + input7 + input8
+    return html.Div([
+        html.H4('Your total carbon footprint is: {}'.format(sum_val)),
+        html.P('Ideal carbon footprint: 6,000 ~ 15,999 pounds per year.'),
+        html.P('Average carbon footprint 16,000 ~ 22,000 pounds per year.'),
+        html.P('Over 22,000 you may want to take some of these “living green” practices into consideration.')
+    ])
 
 if __name__ == '__main__':
     app.run_server(debug=True)
